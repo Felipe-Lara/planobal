@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Salidas del pipeline (artefactos generados, no fuente)
+*.gltf
+*.glb
+
+# Godot
+engine/.godot/
+engine/.import/
+
+# OS / editores
+.DS_Store
+Thumbs.db
+.vscode/
