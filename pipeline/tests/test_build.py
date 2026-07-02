@@ -23,10 +23,24 @@ def test_plane_to_godot_mapping():
 
 def test_geometry_scene_has_one_mesh_per_surface():
     scene = build_geometry_scene_from_file(GEOMETRY_EXAMPLE)
-    # 4 muros + 1 recinto = 5 mallas.
-    assert len(scene.geometry) == 5
+    # w_norte + w_oeste (sin aberturas, 1 malla c/u) = 2
+    # w_sur (1 puerta: 2 jambas + 1 dintel, sin antepecho) = 3
+    # w_este (1 ventana: 2 jambas + 1 dintel + 1 antepecho) = 4
+    # + 1 recinto = 10 mallas.
+    assert len(scene.geometry) == 10
 
-    expected_ids = {"w_sur", "w_este", "w_norte", "w_oeste", "room_sala"}
+    expected_ids = {
+        "w_norte",
+        "w_oeste",
+        "w_sur_jamb_0",
+        "w_sur_jamb_1",
+        "w_sur_lintel_op_puerta",
+        "w_este_jamb_0",
+        "w_este_jamb_1",
+        "w_este_lintel_op_ventana",
+        "w_este_sill_op_ventana",
+        "room_sala",
+    }
     actual_ids = {mesh.metadata["surface_id"] for mesh in scene.geometry.values()}
     assert actual_ids == expected_ids
 
@@ -54,15 +68,26 @@ def building_dir(tmp_path: Path) -> Path:
 
 def test_building_scene_merges_planos_with_prefixed_node_names(building_dir: Path):
     scene = build_building_scene_from_file(building_dir)
-    # 2 planos x 5 mallas cada uno = 10 nodos.
-    assert len(scene.geometry) == 10
+    # 2 planos x 10 mallas cada uno (ver test_geometry_scene_has_one_mesh_per_surface) = 20 nodos.
+    assert len(scene.geometry) == 20
 
     node_names = set(scene.geometry.keys())
-    assert "p0_w_sur" in node_names
-    assert "p1_w_sur" in node_names
+    assert "p0_w_sur_jamb_0" in node_names
+    assert "p1_w_sur_jamb_0" in node_names
 
     surface_ids = {mesh.metadata["surface_id"] for mesh in scene.geometry.values()}
-    assert surface_ids == {"w_sur", "w_este", "w_norte", "w_oeste", "room_sala"}
+    assert surface_ids == {
+        "w_norte",
+        "w_oeste",
+        "w_sur_jamb_0",
+        "w_sur_jamb_1",
+        "w_sur_lintel_op_puerta",
+        "w_este_jamb_0",
+        "w_este_jamb_1",
+        "w_este_lintel_op_ventana",
+        "w_este_sill_op_ventana",
+        "room_sala",
+    }
 
 
 def test_building_scene_bounding_box_reflects_two_floors_elevation(building_dir: Path):

@@ -12,20 +12,23 @@ from pathlib import Path
 import trimesh
 
 from pipeline.geometry.floor import build_floor_mesh
-from pipeline.geometry.walls import build_wall_mesh
+from pipeline.geometry.walls import build_wall_meshes
 from pipeline.schema import Geometry
 
 
 def build_geometry_scene(geometry: Geometry) -> trimesh.Scene:
-    """Construye un trimesh.Scene con un nodo por muro y por recinto.
+    """Construye un trimesh.Scene con un nodo por muro (o por segmento de
+    muro, si tiene aberturas) y por recinto.
 
-    El nombre de cada nodo/malla es su surface_id (wall.id / room.id):
-    es el contrato de repintado con el engine.
+    El nombre de cada nodo/malla es su surface_id (wall.id / segmento /
+    room.id): es el contrato de repintado con el engine.
     """
     scene = trimesh.Scene()
     for wall in geometry.walls:
-        mesh = build_wall_mesh(wall)
-        scene.add_geometry(mesh, node_name=wall.id, geom_name=wall.id)
+        wall_openings = [o for o in geometry.openings if o.wall_id == wall.id]
+        for mesh in build_wall_meshes(wall, wall_openings):
+            surface_id = mesh.metadata["surface_id"]
+            scene.add_geometry(mesh, node_name=surface_id, geom_name=surface_id)
     for room in geometry.rooms:
         mesh = build_floor_mesh(room)
         scene.add_geometry(mesh, node_name=room.id, geom_name=room.id)
