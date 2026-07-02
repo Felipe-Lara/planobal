@@ -2,6 +2,23 @@ CLAUDE.md — Plano3D
 
 Contexto del proyecto para Claude Code. Se carga al inicio de cada sesión: mantenlo conciso.
 
+Estado actual (actualizado 2026-07-02)
+
+
+Sprints 0–4 del ROADMAP.md completos, commiteados y pusheados a
+github.com/Felipe-Lara/planobal (repo público, MIT — es portafolio de
+búsqueda laboral, cuidar que el historial de commits se vea prolijo).
+Validado a mano en Godot 4.7: se camina en la sala de ejemplo, se cruza
+la puerta, la ventana tiene antepecho, hay dos pisos con losa entre
+ambos, y el menú de pausa (Esc) permite reiniciar posición y saltar de piso.
+
+Próximo: Sprint 5 — repintado (raycast + selección de material +
+paint_state.json). El menú ya tiene una sección "Materiales" placeholder
+lista para eso. Sprint 3 (ingest DXF real) sigue bloqueado: falta el
+DXF de LV25.
+
+Detalle sprint por sprint, con checklist: ver ROADMAP.md.
+
 Qué es
 
 Pipeline en Python que convierte planos CAD (DXF/DWG de AutoCAD) en geometría 3D,
