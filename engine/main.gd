@@ -12,11 +12,35 @@ extends Node3D
 ## un building.json con más de una habitación o terreno real.
 
 @onready var room: Node3D = $Room
+@onready var player: CharacterBody3D = $Player
+@onready var menu: CanvasLayer = $Menu
 
 
 func _ready() -> void:
 	_generate_trimesh_collision(room)
 	_spawn_test_ground()
+	menu.reset_position_callback = player.reset_to_spawn
+	menu.change_floor_callback = player.teleport_to_elevation
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		if menu.visible:
+			_close_menu()
+		else:
+			_open_menu()
+
+
+func _open_menu() -> void:
+	menu.open()
+	get_tree().paused = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+func _close_menu() -> void:
+	menu.close()
+	get_tree().paused = false
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
 func _generate_trimesh_collision(node: Node) -> void:
