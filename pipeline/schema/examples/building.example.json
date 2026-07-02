@@ -1,0 +1,20 @@
+{
+  "planos": [
+    {
+      "geometry": "geometry.json",
+      "name": "Planta baja",
+      "offset_xy": [0.0, 0.0],
+      "elevation": 0.0,
+      "rotation_deg": 0.0,
+      "slab_thickness": 0.2
+    },
+    {
+      "geometry": "geometry.json",
+      "name": "Primer piso",
+      "offset_xy": [0.0, 0.0],
+      "elevation": 2.7,
+      "rotation_deg": 0.0,
+      "slab_thickness": 0.2
+    }
+  ]
+}
