@@ -1,0 +1,10 @@
+# Normaliza finales de línea: LF en el repo, el checkout se adapta al SO.
+* text=auto eol=lf
+
+# Binarios que no deben tocarse.
+*.png binary
+*.jpg binary
+*.gltf binary
+*.glb binary
+*.dxf binary
+*.dwg binary
