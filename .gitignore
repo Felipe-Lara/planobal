@@ -10,6 +10,8 @@ venv/
 # Salidas del pipeline (artefactos generados, no fuente)
 *.gltf
 *.glb
+!engine/sample_room.gltf
+!engine/gltf_buffer_*.bin
 
 # Godot
 engine/.godot/

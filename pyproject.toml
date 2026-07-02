@@ -7,6 +7,9 @@ dependencies = [
     "pydantic>=2.6",
     "ezdxf>=1.1",      # lectura DXF y conversión DWG (addon odafc)
     "trimesh>=4.0",    # generación/exportación de malla .gltf (Fase 1/3)
+    "shapely>=2.0",    # triangulación de polígonos de piso (usa trimesh.path.polygons)
+    "mapbox-earcut>=1.0",  # motor de triangulación de trimesh.creation.extrude_polygon
+    "scipy>=1.11",     # trimesh.Trimesh.fix_normals (componentes conexas)
 ]
 
 [project.optional-dependencies]

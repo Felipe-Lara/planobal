@@ -17,6 +17,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
+from pipeline.compose.loader import build_building_scene_from_file
 from pipeline.schema import Building, Geometry, PaintState
 
 # Detección del esquema por pista en el nombre de archivo, luego por estructura.
@@ -79,6 +80,38 @@ def _cmd_stub(name: str, phase: str):
     return run
 
 
+def _cmd_build(args: argparse.Namespace) -> int:
+    path = Path(args.file)
+    if not path.is_file():
+        print(f"[error] no existe el archivo: {path}", file=sys.stderr)
+        return 2
+
+    try:
+        scene = build_building_scene_from_file(path)
+    except json.JSONDecodeError as exc:
+        print(f"[error] JSON inválido en {path.name}: {exc}", file=sys.stderr)
+        return 2
+    except ValidationError as exc:
+        print(
+            f"[FALLA] {path.name} no cumple el esquema 'building'/'geometry':\n{exc}",
+            file=sys.stderr,
+        )
+        return 1
+    except (ValueError, FileNotFoundError) as exc:
+        print(f"[error] no se pudo construir la geometría: {exc}", file=sys.stderr)
+        return 1
+
+    output = Path(args.output) if args.output else path.with_suffix(".gltf")
+    try:
+        scene.export(output)
+    except Exception as exc:  # noqa: BLE001 - error de export de trimesh, reportar limpio
+        print(f"[error] no se pudo exportar {output}: {exc}", file=sys.stderr)
+        return 1
+
+    print(f"[OK] {output} generado ({len(scene.geometry)} mallas).")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="pipeline", description="Pipeline CAD→3D de Plano3D.")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -93,7 +126,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_bld = sub.add_parser("build", help="building.json -> .gltf (Fase 1/3).")
     p_bld.add_argument("file")
-    p_bld.set_defaults(func=_cmd_stub("build", "Fase 1/3"))
+    p_bld.add_argument(
+        "-o",
+        "--output",
+        default=None,
+        help="Ruta de salida del .gltf (default: junto al building.json, mismo stem).",
+    )
+    p_bld.set_defaults(func=_cmd_build)
 
     return parser
 
