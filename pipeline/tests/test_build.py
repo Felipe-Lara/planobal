@@ -68,12 +68,15 @@ def building_dir(tmp_path: Path) -> Path:
 
 def test_building_scene_merges_planos_with_prefixed_node_names(building_dir: Path):
     scene = build_building_scene_from_file(building_dir)
-    # 2 planos x 10 mallas cada uno (ver test_geometry_scene_has_one_mesh_per_surface) = 20 nodos.
-    assert len(scene.geometry) == 20
+    # 2 planos x 10 mallas cada uno (ver test_geometry_scene_has_one_mesh_per_surface)
+    # + 1 losa (solo para el plano índice 1, no para el 0) = 21 nodos.
+    assert len(scene.geometry) == 21
 
     node_names = set(scene.geometry.keys())
     assert "p0_w_sur_jamb_0" in node_names
     assert "p1_w_sur_jamb_0" in node_names
+    assert "p1_slab" in node_names
+    assert "p0_slab" not in node_names
 
     surface_ids = {mesh.metadata["surface_id"] for mesh in scene.geometry.values()}
     assert surface_ids == {
@@ -87,6 +90,7 @@ def test_building_scene_merges_planos_with_prefixed_node_names(building_dir: Pat
         "w_este_lintel_op_ventana",
         "w_este_sill_op_ventana",
         "room_sala",
+        "slab_1",
     }
 
 
@@ -102,3 +106,42 @@ def test_building_scene_bounding_box_reflects_two_floors_elevation(building_dir:
     # espesor de muro (mismo offset_xy=0,0 en ambos planos).
     assert 4.0 <= extents[0] <= 4.2
     assert 3.0 <= extents[2] <= 3.2
+
+
+def test_building_scene_generates_exactly_one_slab_for_second_plano(building_dir: Path):
+    scene = build_building_scene_from_file(building_dir)
+    slab_names = {name for name in scene.geometry if name.endswith("_slab")}
+    assert slab_names == {"p1_slab"}
+
+    slab_mesh = scene.geometry["p1_slab"]
+    assert slab_mesh.metadata["surface_id"] == "slab_1"
+    assert slab_mesh.metadata["plano_index"] == 1
+
+
+def test_building_scene_slab_does_not_overlap_any_room_floor(building_dir: Path):
+    """Chequeo geométrico real: el rango Y (altura, espacio Godot) de la losa
+    del plano 1 no se solapa con el rango Y de ningún piso de recinto de
+    ningún plano (incluido el suyo propio), con una tolerancia mínima."""
+    scene = build_building_scene_from_file(building_dir)
+    tolerance = 1e-6
+
+    slab_mesh = scene.geometry["p1_slab"]
+    slab_y_min = slab_mesh.bounds[0][1]
+    slab_y_max = slab_mesh.bounds[1][1]
+
+    floor_names = [name for name in scene.geometry if name.endswith("_room_sala")]
+    assert floor_names, "se esperaba al menos un piso de recinto en la escena"
+
+    for floor_name in floor_names:
+        floor_mesh = scene.geometry[floor_name]
+        floor_y_min = floor_mesh.bounds[0][1]
+        floor_y_max = floor_mesh.bounds[1][1]
+        # Sin solapamiento: los rangos [slab_y_min, slab_y_max] y
+        # [floor_y_min, floor_y_max] no deben intersecar (con tolerancia).
+        overlaps = slab_y_max > floor_y_min - tolerance and slab_y_min < floor_y_max + tolerance
+        assert not overlaps, f"la losa se solapa en Y con {floor_name}"
+
+    # La losa del plano 1 queda inmediatamente debajo del piso de ESE mismo
+    # plano (no del suelo del plano 0, que está a otra elevation).
+    own_floor = scene.geometry["p1_room_sala"]
+    assert slab_y_max <= own_floor.bounds[0][1] - tolerance

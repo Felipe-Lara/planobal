@@ -1,8 +1,8 @@
 """building.json -> trimesh.Scene compuesto (todos los planos, transformados).
 
-Sprint 1/3 (parcial): aplica offset_xy, elevation y rotation_deg por plano.
-NO genera losas (slab_thickness) todavía -- eso llega en Sprint 4; si el
-campo está presente en el manifiesto simplemente se ignora, no rompe nada.
+Aplica offset_xy, elevation y rotation_deg por plano, y genera una losa de
+transición (`slab_thickness`) debajo de cada plano salvo el primero (que se
+asume apoyado sobre cimiento/suelo real, sin losa generada por el pipeline).
 """
 
 from __future__ import annotations
@@ -14,6 +14,7 @@ from pathlib import Path
 import numpy as np
 import trimesh
 
+from pipeline.compose.slab import build_slab_mesh
 from pipeline.geometry.build import build_geometry_scene, load_geometry
 from pipeline.geometry.coords import plane_to_godot
 from pipeline.schema import Building, Plano
@@ -62,6 +63,18 @@ def build_building_scene(building: Building, base_dir: Path) -> trimesh.Scene:
                 transformed,
                 node_name=f"p{index}_{surface_id}",
                 geom_name=f"p{index}_{surface_id}",
+            )
+
+        if index > 0:
+            slab_surface_id = f"slab_{index}"
+            slab = build_slab_mesh(geometry, plano.slab_thickness, slab_surface_id)
+            slab.apply_transform(transform)
+            slab.metadata["surface_id"] = slab_surface_id
+            slab.metadata["plano_index"] = index
+            merged.add_geometry(
+                slab,
+                node_name=f"p{index}_slab",
+                geom_name=f"p{index}_slab",
             )
     return merged
 
