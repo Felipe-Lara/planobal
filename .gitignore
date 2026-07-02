@@ -13,6 +13,11 @@ venv/
 !engine/sample_room.gltf
 !engine/gltf_buffer_*.bin
 
+# Planos CAD reales de clientes: nunca al repo publico (confidencialidad).
+# Usar pipeline/schema/examples/*.example.json como fixtures sinteticas.
+samples/*.dxf
+samples/*.dwg
+
 # Godot
 engine/.godot/
 engine/.import/
