@@ -14,27 +14,46 @@ from pipeline.schema import Room
 _FLOOR_THICKNESS = 0.05
 
 
-def build_floor_mesh(room: Room) -> trimesh.Trimesh:
-    """Construye una malla plana (con espesor mínimo) desde `room.polygon`.
-
-    El polígono 2D (X/Y del plano) se triangula y se extruye una pequeña
-    altura hacia abajo desde z=0 para obtener un sólido válido. El nombre de
-    la malla es `room.id` (surface_id: contrato con el engine).
-    """
+def _build_room_slab(room: Room, z_bottom: float, surface_id: str) -> trimesh.Trimesh:
+    """Extruye `room.polygon` en una losa delgada entre `z_bottom` y
+    `z_bottom + _FLOOR_THICKNESS` (espacio local del plano, antes del mapeo
+    Y-up), y la mapea a Godot. Compartido por piso y techo."""
     polygon = Polygon(room.polygon)
     if not polygon.is_valid or polygon.area == 0:
         raise ValueError(f"room {room.id!r} tiene un polígono inválido o degenerado")
 
     mesh = trimesh.creation.extrude_polygon(polygon, height=_FLOOR_THICKNESS)
-    # extrude_polygon deja el sólido entre z=0 y z=height (plano X/Y, Z "arriba
-    # del CAD" temporal); lo bajamos para que la cara superior quede en z=0
-    # (nivel de piso) y luego mapeamos cada vértice al espacio Y-up de Godot.
+    # extrude_polygon deja el sólido entre z=0 y z=_FLOOR_THICKNESS; lo
+    # trasladamos para que ocupe [z_bottom, z_bottom + _FLOOR_THICKNESS].
     vertices = mesh.vertices.copy()
-    vertices[:, 2] -= _FLOOR_THICKNESS
+    vertices[:, 2] += z_bottom
     godot_vertices = np.array([plane_to_godot(x, y, z) for x, y, z in vertices])
 
-    floor = trimesh.Trimesh(vertices=godot_vertices, faces=mesh.faces, process=True)
-    floor.fix_normals()
-    floor.metadata["surface_id"] = room.id
-    floor.metadata["name"] = room.id
-    return floor
+    slab = trimesh.Trimesh(vertices=godot_vertices, faces=mesh.faces, process=True)
+    slab.fix_normals()
+    slab.metadata["surface_id"] = surface_id
+    slab.metadata["name"] = surface_id
+    return slab
+
+
+def build_floor_mesh(room: Room) -> trimesh.Trimesh:
+    """Construye una malla plana (con espesor mínimo) desde `room.polygon`.
+
+    El polígono 2D (X/Y del plano) se triangula y se extruye una pequeña
+    altura hacia abajo desde z=0 para obtener un sólido válido, con la cara
+    superior en z=0 (nivel de piso). `surface_id = f"{room.id}.piso"`
+    (contrato con el engine: separa piso de techo como superficies
+    repintables distintas, ver paint_state.example.json).
+    """
+    return _build_room_slab(room, z_bottom=-_FLOOR_THICKNESS, surface_id=f"{room.id}.piso")
+
+
+def build_ceiling_mesh(room: Room, ceiling_height: float) -> trimesh.Trimesh:
+    """Construye la malla de techo de un room, misma extrusión delgada que
+    el piso pero con la cara inferior apoyada en `ceiling_height` (altura,
+    en metros, hasta donde llega el muro más alto que delimita el room —
+    ver `build.py`, que hoy usa una simplificación: el máximo entre TODOS
+    los muros de la geometry, no solo los que delimitan este room).
+    `surface_id = f"{room.id}.techo"`.
+    """
+    return _build_room_slab(room, z_bottom=ceiling_height, surface_id=f"{room.id}.techo")

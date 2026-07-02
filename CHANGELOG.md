@@ -12,6 +12,21 @@ ver ROADMAP.md para el detalle sprint por sprint).
 
 ## [Unreleased]
 
+## [v0.12] — 2026-07-02
+### Added
+- `samples/LV25_prueba.dxf`: primer DXF real de Prolarq (lámina completa,
+  DXF 2018, $INSUNITS=4 mm). Desbloquea Sprint 3, pendiente de inspección
+  a fondo (la extensión sugiere varias vistas en el mismo modelspace).
+
+## [v0.11] — 2026-07-02
+### Added
+- Superficies pintables con granularidad real de cara: cada muro (y cada
+  segmento de jamba/dintel/antepecho) se separa en `.cara_interior` /
+  `.cara_exterior`; cada room ahora genera `.piso` y `.techo` distintos.
+  Prepara el contrato de `paint_state.json` para el raycast del Sprint 5.
+- Tests geométricos: cara interior más cerca del centroide del room que
+  la exterior, techo por encima del piso (bounding box).
+
 ## [v0.10] — 2026-07-02
 ### Added
 - `CHANGELOG.md` (este archivo).

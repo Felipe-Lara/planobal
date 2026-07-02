@@ -1,6 +1,6 @@
 {
-  "w_sur.cara_interior": "pintura",
-  "w_este.cara_interior": "pintura",
+  "w_sur_jamb_0.cara_interior": "pintura",
+  "w_este_jamb_0.cara_interior": "pintura",
   "room_sala.piso": "madera",
   "room_sala.techo": "cemento"
 }

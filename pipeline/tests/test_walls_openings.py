@@ -11,7 +11,15 @@ import numpy as np
 import trimesh
 
 from pipeline.geometry.walls import build_wall_mesh, build_wall_meshes
-from pipeline.schema import Opening, Wall
+from pipeline.schema import Opening, Room, Wall
+
+# Room de referencia para inferir interior/exterior, misma bounding box que
+# el fixture del contrato (geometry.example.json).
+_ROOM_SALA = Room(
+    id="room_sala",
+    name="Sala",
+    polygon=[(0.0, 0.0), (4.0, 0.0), (4.0, 3.0), (0.0, 3.0)],
+)
 
 
 def _hole_bounds_godot(wall: Wall, opening: Opening) -> tuple[np.ndarray, np.ndarray]:
@@ -59,13 +67,23 @@ def _assert_no_vertex_in_hole(meshes: list[trimesh.Trimesh], wall: Wall, opening
         )
 
 
-def test_wall_without_openings_generates_single_mesh():
+def test_wall_without_openings_and_without_rooms_falls_back_to_single_mesh():
+    """Caso borde: sin rooms para inferir interior/exterior, se genera la
+    caja completa sin dividir (con advertencia), igual que la ruta legacy."""
     wall = Wall(id="w1", start=(0.0, 0.0), end=(4.0, 0.0), thickness=0.15, height=2.5)
     meshes = build_wall_meshes(wall, [])
     assert len(meshes) == 1
     assert meshes[0].metadata["surface_id"] == "w1"
     # Debe coincidir con la ruta legacy de un solo box.
     assert meshes[0].vertices.shape == build_wall_mesh(wall).vertices.shape
+
+
+def test_wall_without_openings_generates_interior_and_exterior_faces():
+    wall = Wall(id="w1", start=(0.0, 0.0), end=(4.0, 0.0), thickness=0.15, height=2.5)
+    meshes = build_wall_meshes(wall, [], [_ROOM_SALA])
+    surface_ids = {m.metadata["surface_id"] for m in meshes}
+    assert surface_ids == {"w1.cara_interior", "w1.cara_exterior"}
+    assert len(meshes) == 2
 
 
 def test_wall_with_door_generates_jambs_and_lintel_no_sill():
@@ -79,10 +97,13 @@ def test_wall_with_door_generates_jambs_and_lintel_no_sill():
         height=2.1,
         sill_height=0.0,
     )
-    meshes = build_wall_meshes(wall, [door])
+    meshes = build_wall_meshes(wall, [door], [_ROOM_SALA])
     surface_ids = {m.metadata["surface_id"] for m in meshes}
-    assert surface_ids == {"w_sur_jamb_0", "w_sur_jamb_1", "w_sur_lintel_op_puerta"}
-    assert len(meshes) == 3
+    base_ids = {"w_sur_jamb_0", "w_sur_jamb_1", "w_sur_lintel_op_puerta"}
+    assert surface_ids == {
+        f"{sid}.cara_{side}" for sid in base_ids for side in ("interior", "exterior")
+    }
+    assert len(meshes) == 6
     _assert_no_vertex_in_hole(meshes, wall, door)
 
 
@@ -97,15 +118,18 @@ def test_wall_with_window_generates_jambs_lintel_and_sill():
         height=1.1,
         sill_height=0.9,
     )
-    meshes = build_wall_meshes(wall, [window])
+    meshes = build_wall_meshes(wall, [window], [_ROOM_SALA])
     surface_ids = {m.metadata["surface_id"] for m in meshes}
-    assert surface_ids == {
+    base_ids = {
         "w_este_jamb_0",
         "w_este_jamb_1",
         "w_este_lintel_op_ventana",
         "w_este_sill_op_ventana",
     }
-    assert len(meshes) == 4
+    assert surface_ids == {
+        f"{sid}.cara_{side}" for sid in base_ids for side in ("interior", "exterior")
+    }
+    assert len(meshes) == 8
     _assert_no_vertex_in_hole(meshes, wall, window)
 
 
@@ -117,15 +141,19 @@ def test_wall_with_two_openings_generates_middle_jamb():
     door_b = Opening(
         id="op_b", wall_id="w_multi", type="door", offset_along_wall=3.5, width=0.9, height=2.1
     )
-    meshes = build_wall_meshes(wall, [door_b, door_a])  # orden invertido a propósito
+    meshes = build_wall_meshes(wall, [door_b, door_a], [_ROOM_SALA])  # orden invertido a propósito
     surface_ids = {m.metadata["surface_id"] for m in meshes}
-    # jamb_0 (0..0.5), jamb_1 (1.4..3.5), jamb_2 (4.4..6.0) + 2 dinteles.
-    assert surface_ids == {
+    # jamb_0 (0..0.5), jamb_1 (1.4..3.5), jamb_2 (4.4..6.0) + 2 dinteles,
+    # cada uno dividido en cara interior/exterior.
+    base_ids = {
         "w_multi_jamb_0",
         "w_multi_jamb_1",
         "w_multi_jamb_2",
         "w_multi_lintel_op_a",
         "w_multi_lintel_op_b",
+    }
+    assert surface_ids == {
+        f"{sid}.cara_{side}" for sid in base_ids for side in ("interior", "exterior")
     }
     _assert_no_vertex_in_hole(meshes, wall, door_a)
     _assert_no_vertex_in_hole(meshes, wall, door_b)
