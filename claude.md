@@ -12,10 +12,21 @@ Validado a mano en Godot 4.7: se camina en la sala de ejemplo, se cruza
 la puerta, la ventana tiene antepecho, hay dos pisos con losa entre
 ambos, y el menú de pausa (Esc) permite reiniciar posición y saltar de piso.
 
-Próximo: Sprint 5 — repintado (raycast + selección de material +
-paint_state.json). El menú ya tiene una sección "Materiales" placeholder
-lista para eso. Sprint 3 (ingest DXF real) sigue bloqueado: falta el
-DXF de LV25.
+Además: geometry-builder ya separa cada muro en cara interior/exterior
+y cada room en piso/techo (surface_id granular, listo para el raycast
+de pintado).
+
+Llegó el primer DXF real de LV25 (`samples/LV25_prueba.dxf`, NO se sube
+al repo — confidencial de cliente, ver .gitignore). Es una lámina
+completa (4 plantas + cortes + cuadros + isométricos en el mismo
+modelspace), capas nombradas por color/grosor, no por función. Sprint 3
+queda PAUSADO hasta que el usuario confirme con Prolarq la leyenda de
+capas (qué color es muro/puerta/ventana/eje/cota). Detalle en memoria
+de sesión "plano3d-dxf-lv25-hallazgos".
+
+Próximo: retomar Sprint 3 apenas haya leyenda de capas, o mientras tanto
+Sprint 5 — repintado (raycast + selección de material + paint_state.json).
+El menú ya tiene una sección "Materiales" placeholder lista para eso.
 
 Detalle sprint por sprint, con checklist: ver ROADMAP.md.
 

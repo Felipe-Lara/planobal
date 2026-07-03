@@ -12,6 +12,13 @@ ver ROADMAP.md para el detalle sprint por sprint).
 
 ## [Unreleased]
 
+## [v0.13] — 2026-07-02
+### Docs
+- `claude.md`: confirma que el DXF de LV25 es una lámina completa (4
+  plantas + cortes + cuadros + isométricos), capas por color/grosor sin
+  nombre semántico. Sprint 3 pausado hasta confirmar la leyenda de capas
+  con Prolarq.
+
 ## [v0.12] — 2026-07-02
 ### Added
 - `samples/LV25_prueba.dxf`: primer DXF real de Prolarq (lámina completa,
