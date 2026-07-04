@@ -106,6 +106,8 @@ que `validate` acepta y que, pasado por `build`, se camina en Godot.
 ## 🔲 Futuro (post-MVP)
 
 - 🔲 **Fase 5** — material-system avanzado (variantes, tiling por superficie) y furniture-system.
+  Incluye: selector de color para "pintura" (requiere extender el contrato de
+  `paint_state.py`, hoy `Material` es un enum fijo de 3 valores sin color).
 - 🔲 **Fase 6** — floorplan-vision: PDF → geometría, solo si algún día no existe el CAD.
 
 ---
