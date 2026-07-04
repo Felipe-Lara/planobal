@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://sample_room.gltf" id="2_room"]
 [ext_resource type="PackedScene" path="res://player.tscn" id="3_player"]
 [ext_resource type="PackedScene" path="res://menu.tscn" id="4_menu"]
+[ext_resource type="Script" path="res://painter.gd" id="5_painter"]
+[ext_resource type="PackedScene" path="res://paint_menu.tscn" id="6_paint_menu"]
 
 [node name="Main" type="Node3D"]
 process_mode = 3
@@ -19,3 +21,9 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.05, -1.5)
 
 [node name="Menu" parent="." instance=ExtResource("4_menu")]
+
+[node name="Painter" type="Node" parent="."]
+process_mode = 3
+script = ExtResource("5_painter")
+
+[node name="PaintMenu" parent="." instance=ExtResource("6_paint_menu")]

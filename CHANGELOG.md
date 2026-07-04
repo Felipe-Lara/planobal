@@ -12,6 +12,20 @@ ver ROADMAP.md para el detalle sprint por sprint).
 
 ## [Unreleased]
 
+## [v0.14] — 2026-07-03
+### Added
+- Repintado en runtime (Sprint 5): click izquierdo lanza un raycast contra
+  la colisión trimesh, abre `paint_menu.tscn` con el `surface_id` golpeado
+  y permite elegir madera/cemento/pintura. `painter.gd` cachea un
+  `StandardMaterial3D` por tipo (albedo/normal/roughness) y lo asigna via
+  `material_override`.
+- Persistencia en `engine/paint_state.json` (no versionado, es estado de
+  partida): se escribe al pintar y se relee en `_ready()`, ignorando
+  surface_ids inexistentes sin crashear.
+- Texturas CC0 reales de ambientCG en `engine/assets/materials/` (madera =
+  Wood049, cemento = Concrete034, pintura = Plaster001), créditos en
+  `CREDITS.md`.
+
 ## [v0.13] — 2026-07-02
 ### Docs
 - `claude.md`: confirma que el DXF de LV25 es una lámina completa (4

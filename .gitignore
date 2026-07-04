@@ -22,6 +22,10 @@ samples/*.dwg
 engine/.godot/
 engine/.import/
 
+# Estado de repintado: lo escribe el engine en runtime, no es contenido
+# versionado. El ejemplo del contrato vive en pipeline/schema/examples/.
+engine/paint_state.json
+
 # OS / editores
 .DS_Store
 Thumbs.db

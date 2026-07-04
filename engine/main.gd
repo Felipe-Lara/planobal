@@ -14,6 +14,8 @@ extends Node3D
 @onready var room: Node3D = $Room
 @onready var player: CharacterBody3D = $Player
 @onready var menu: CanvasLayer = $Menu
+@onready var painter: Node = $Painter
+@onready var paint_menu: CanvasLayer = $PaintMenu
 
 
 func _ready() -> void:
@@ -21,6 +23,12 @@ func _ready() -> void:
 	_spawn_test_ground()
 	menu.reset_position_callback = player.reset_to_spawn
 	menu.change_floor_callback = player.teleport_to_elevation
+
+	# Sprint 5: raycast + repintado. El painter necesita la cámara del
+	# player (para lanzar el rayo) y la raíz "room" (para buscar la
+	# MeshInstance3D por nombre al cargar paint_state.json).
+	painter.setup(player.camera, room, paint_menu)
+	painter.load_paint_state()
 
 
 func _unhandled_input(event: InputEvent) -> void:

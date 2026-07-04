@@ -1,0 +1,72 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://paint_menu.gd" id="1_paint_menu"]
+
+[node name="PaintMenu" type="CanvasLayer"]
+process_mode = 3
+script = ExtResource("1_paint_menu")
+
+[node name="Panel" type="Panel" parent="."]
+process_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -120.0
+offset_right = 150.0
+offset_bottom = 120.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Panel"]
+process_mode = 3
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Panel/MarginContainer"]
+process_mode = 3
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Panel/MarginContainer/VBox"]
+process_mode = 3
+layout_mode = 2
+text = "Elegir material"
+horizontal_alignment = 1
+
+[node name="SurfaceLabel" type="Label" parent="Panel/MarginContainer/VBox"]
+process_mode = 3
+layout_mode = 2
+text = "Superficie:"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="WoodButton" type="Button" parent="Panel/MarginContainer/VBox"]
+process_mode = 3
+layout_mode = 2
+text = "Madera"
+
+[node name="ConcreteButton" type="Button" parent="Panel/MarginContainer/VBox"]
+process_mode = 3
+layout_mode = 2
+text = "Cemento"
+
+[node name="PaintButton" type="Button" parent="Panel/MarginContainer/VBox"]
+process_mode = 3
+layout_mode = 2
+text = "Pintura"
+
+[node name="CancelButton" type="Button" parent="Panel/MarginContainer/VBox"]
+process_mode = 3
+layout_mode = 2
+text = "Cancelar"

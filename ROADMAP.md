@@ -90,13 +90,13 @@ que `validate` acepta y que, pasado por `build`, se camina en Godot.
 
 ---
 
-## Sprint 5 — Repintado + persistencia  ⬜
+## Sprint 5 — Repintado + persistencia  ⬜ *pendiente validar a mano en Godot*
 **Objetivo:** el corazón interactivo. **Agente: godot-integrator.**
 
-- ⬜ Raycast desde la cámara para seleccionar superficie (por nombre de mesh = `surface_id`).
-- ⬜ UI de selección de material (madera / cemento / pintura) con texturas CC0.
-- ⬜ Asignación de material en runtime.
-- ⬜ Leer/escribir `paint_state.json`; al cargar, ignorar `surface_id` inexistentes con warning.
+- ✅ Raycast desde la cámara para seleccionar superficie (por nombre de mesh = `surface_id`).
+- ✅ UI de selección de material (madera / cemento / pintura) con texturas CC0.
+- ✅ Asignación de material en runtime.
+- ✅ Leer/escribir `paint_state.json`; al cargar, ignorar `surface_id` inexistentes con warning.
 - ⬜ Verificar que el pintado sobrevive a regenerar el `.gltf`.
 
 **Definition of Done:** pintar un muro, cerrar, regenerar `.gltf`, reabrir y ver el muro pintado.
